@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation=
+       "http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+ 		http://www.springframework.org/schema/context
+ 		http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <context:component-scan base-package="com.lifeofcoding"/>
+
+    <!--  1.配置用于密码解密的CredentialMatcher  -->
+    <bean id="matcher" class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+        <property name="hashIterations" value="3"/>
+        <property name="hashAlgorithmName" value="MD5"/>
+    </bean>
+
+    <!--  2.配置Realm,使用自定义的MyEncryptedJdbcRealm,引用Matcher  -->
+    <bean id="realm" class="com.lifeofcoding.shiro.realm.MyEncryptedJdbcRealm">
+        <property name="credentialsMatcher" ref="matcher"/>
+    </bean>
+
+    <!--  3.配置自定义的sessionDao  -->
+    <bean id="redisSessionDao" class="com.lifeofcoding.shiro.session.RedisSessionDao"/>
+
+    <!--  4.通过sessionDao配置sessionManager  -->
+    <!--<bean id="sessionManager" class="org.apache.shiro.session.mgt.DefaultSessionManager">
+        <property name="sessionDAO" ref="redisSessionDao"/>
+    </bean>-->
+    <!--  4.使用自定义的sessionManager，减少对redis的压力  -->
+    <bean id="sessionManager" class="com.lifeofcoding.shiro.session.CustomSessionManager">
+        <property name="sessionDAO" ref="redisSessionDao"/>
+    </bean>
+
+    <!--  5.配置SecurityManager,引用Realm和SessionManager  -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="realm"/>
+        <property name="sessionManager" ref="sessionManager"/>
+    </bean>
+
+    <!--  6.配置shiro的ShiroFilterFactoryBean,引用SecurityManager；
+    该Bean会创建一个shiro的内部类SpringShiroFilter的对象，并交由DelegatingFilterProxy代理-->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <property name="loginUrl" value="login.html"/>
+        <property name="unauthorizedUrl" value="403.html"/>
+        <!--  ShiroFilterFactoryBean会根据以下配置创建shiro的过滤器链  -->
+        <property name="filterChainDefinitions">
+            <value>
+                /login.html = anon
+                /subLogin = anon
+                /register = anon
+                /addPermissions = anon
+                /testPermission = anon
+                /testRole = anon
+                /* = authc
+            </value>
+        </property>
+    </bean>
+
+</beans>

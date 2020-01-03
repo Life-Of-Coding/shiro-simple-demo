@@ -1,0 +1,53 @@
+<!DOCTYPE web-app PUBLIC
+        "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0"
+         metadata-complete="true">
+
+    <!--  声明应用范围(整个WEB项目)内的上下文初始化参数。  -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <!--扫描所有spring配置文件，不用在配置文件里import-->
+        <param-value>classpath*:spring/spring*</param-value>
+    </context-param>
+
+    <!--  配置监听器，用于springIOC -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <!--<listener>
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+    </listener>-->
+
+    <!--  DelegatingFilterProxy可以代理Spring管理的bean中的Filter，shiro的filter就是由其代理;
+    "filter-name"要与spring配置文件中ShiroFilterFactoryBean的id一致；
+    这里相当于把shiro和springmvc整合到一起-->
+    <filter>
+        <filter-name>shiroFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>shiroFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!--  将请求路由到相应的handler  -->
+    <servlet>
+        <servlet-name>spring-mvc</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath*:spring/spring-mvc.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>spring-mvc</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+</web-app>

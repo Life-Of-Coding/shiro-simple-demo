@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--  扫描shiro包下所有组件(包括@Controller、@Component等)  -->
+    <context:component-scan base-package="com.lifeofcoding.shiro"/>
+
+    <!-- 1.开启注解；
+         2.注册HandlerMapping和HandlerAdapter的实现类。
+         配置该参数，spring可以通过context:component-scan/标签的配置，自动将扫描到的@Component，@Controller，@Service，@Repository等注解标记的组件注册到工厂中，来处理请求。
+         该参数还支持以下功能：
+         a:默认提供的功能:数据绑定，数字和日期的format@NumberFormat,@DateTimeFormat
+         b:xml,json的默认读写支持-->
+    <mvc:annotation-driven/>
+
+    <!-- 处理静态资源 -->
+    <mvc:resources mapping="/*" location="/"/>
+
+    <!-- 开启AOP -->
+    <aop:config proxy-target-class="true"/>
+    <!-- 用于管理shiro的生命周期 -->
+    <bean class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+    <!-- 用于注解方式验证权限的通知 -->
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+
+</beans>

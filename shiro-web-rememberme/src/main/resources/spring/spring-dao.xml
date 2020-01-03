@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation=
+               "http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+ 		http://www.springframework.org/schema/tx
+ 		http://www.springframework.org/schema/tx/spring-tx.xsd
+ 		http://www.springframework.org/schema/aop
+ 		http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 配置阿里druid数据源 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="username" value="root"/>
+        <property name="password" value="0113"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/shiro"/>
+    </bean>
+
+    <!-- 配置JdbcTemplate -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 配置事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 配置注解方式使用事务 -->
+    <tx:annotation-driven proxy-target-class="true"/>
+
+    <!-- 配置AOP,配置通知的属性 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="*" propagation="REQUIRED" rollback-for="Exception"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- 配置AOP,配置切面 -->
+    <aop:config proxy-target-class="true">
+        <aop:advisor advice-ref="txAdvice" pointcut="within(com.lifeofcoding.shiro.realm..*)"/>
+    </aop:config>
+
+</beans>
