@@ -10,8 +10,8 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>war</packaging>
 
-    <name>shiro-jdbc-web</name>
-    <artifactId>shiro-jdbc-web</artifactId>
+    <name>shiro-web-jdbc</name>
+    <artifactId>shiro-web-jdbc</artifactId>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
